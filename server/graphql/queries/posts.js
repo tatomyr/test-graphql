@@ -13,9 +13,6 @@ export default {
     const db = await MongoClient.connect(process.env.MONGO_URL);
     const dbInstance = db.db(process.env.DB_NAME);
     const result = await dbInstance.collection('posts').find().toArray();
-
-    console.log('FOUND--->',result);
-
     return result;
   }
 };

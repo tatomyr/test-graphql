@@ -1,5 +1,5 @@
-import post from './post';
+import addPost from './addPost';
 
 export default {
-  post,
+  addPost,
 };

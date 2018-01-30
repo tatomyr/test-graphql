@@ -8,7 +8,7 @@ import {
 export default new GraphQLObjectType({
   name: 'Post',
   fields: {
-    _id: { type: GraphQLString },
+    _id: { type: new GraphQLNonNull(GraphQLID) },
     date: { type: GraphQLString },
     text: { type: GraphQLString },
   },

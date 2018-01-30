@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>GraphQL Test</title>
+  </head>
+  <body>
+    <a href="/rest.html">REST</a>
+    | GraphQL
+    <hr />
+    <ol id="posts-container"></ol>
+    <hr />
+    <form onSubmit="addPost(event)">
+      <input name="text" placeholder="Type a post..." />
+      <button>Add a Post</button>
+    </form>
+
+    <script>
+      const PostView = text => date => `
+        <li>
+          <div>
+            <b>${text}</b>
+          </div>
+          <div>
+            <i>${(new Date(+date)).toLocaleString()}</i>
+          </div>
+        </li>
+      `;
+
+      const renderPostsList = ({ data: { posts, addPost } }) => {
+        const List = (posts || addPost).map(({ text, date }) => PostView(text)(date)).join('');
+        document.querySelector('#posts-container').innerHTML = List;
+      }
+
+      const addPost = e => {
+        e.preventDefault();
+        const text = e.target.text.value;
+        fetch('/graphql', {
+        	headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+        	method: 'post',
+        	body: JSON.stringify({ query: `mutation {
+            addPost(data: {
+               text: "${text}"
+            }) {
+              text
+              date
+            }
+          }` }),
+        })
+          .then(res => res.json())
+          .then(renderPostsList);
+      }
+
+      const getPosts = () => {
+        fetch('/graphql', {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+        	method: 'post',
+        	body: JSON.stringify({ query: '{ posts { date, text } }' }),
+        })
+          .then(res => res.json())
+          .then(renderPostsList);
+      }
+
+      (() => {
+        getPosts();
+      })()
+    </script>
+  </body>
+</html>
