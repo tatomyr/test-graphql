@@ -3,33 +3,19 @@ import {
   GraphQLNonNull,
   GraphQLID
 } from 'graphql';
-
 import postType from '../types/post';
-// import getProjection from '../../get-projection';
-// import CommentModel from '../../../models/comment';
-// import mongo from '../../mongo'; // ???
-
-console.log('queries/posts---->',postType);
+import { MongoClient } from 'mongodb';
 
 export default {
   type: new GraphQLList(postType),
   args: {},
-  // args: {
-  //   postId: {
-  //     name: 'postId',
-  //     type: new GraphQLNonNull(GraphQLID)
-  //   }
-  // },
-  resolve: (root, params, options) => {
-    // const projection = getProjection(options.fieldASTs[0]);
+  async resolve(root, params, options) {
+    const db = await MongoClient.connect(process.env.MONGO_URL);
+    const dbInstance = db.db(process.env.DB_NAME);
+    const result = await dbInstance.collection('posts').find().toArray();
 
-    // return CommentModel
-    //   .find({
-    //     postId: params.postId
-    //   })
-    //   .select(projection)
-    //   .exec();
+    console.log('FOUND--->',result);
 
-    return [{_id: "---id---", text: 'lsdjflsjf', date: '232423'}]
+    return result;
   }
 };
