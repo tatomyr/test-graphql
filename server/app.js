@@ -3,12 +3,22 @@ import graphqlHTTP from 'express-graphql';
 import bodyParser from 'body-parser';
 import mongo from './mongo';
 
+import schema from './graphql';
+
 const app = express();
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use(bodyParser.json());
+
+app.use('/graphql', graphqlHTTP(req => ({
+  schema,
+  pretty: true,
+  graphiql: true,
+})));
+
+
 
 app.get('/test', (req, res) => {
   res.send('ok')
