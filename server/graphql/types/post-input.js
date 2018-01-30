@@ -7,5 +7,6 @@ export default new GraphQLInputObjectType({
   name: 'PostInput',
   fields: {
     text: { type: GraphQLString },
+    method: { type: GraphQLString },
   }
 });

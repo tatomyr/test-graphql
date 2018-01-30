@@ -38,7 +38,11 @@ app.get('/posts', (req, res) => {
 
 app.post('/post', (req, res) => {
   mongo(db => {
-    db.collection("posts").insert({ date: Date.now(), text: req.body.text }, (err, result) => {
+    db.collection("posts").insert({
+      date: Date.now(),
+      text: req.body.text,
+      method: req.body.method,
+    }, (err, result) => {
       if (err) throw err;
       db.collection('posts').find().toArray((err, posts) => {
         res.json({

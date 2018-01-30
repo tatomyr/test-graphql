@@ -11,5 +11,6 @@ export default new GraphQLObjectType({
     _id: { type: new GraphQLNonNull(GraphQLID) },
     date: { type: GraphQLString },
     text: { type: GraphQLString },
+    method: { type: GraphQLString },
   },
 });

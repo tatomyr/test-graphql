@@ -12,39 +12,44 @@
     <hr />
     <form onSubmit="addPost(event)">
       <input name="text" placeholder="Type a post..." />
+      <input type="hidden" name="method" value="REST" />
       <button>Add a Post</button>
     </form>
 
     <script>
-      const PostView = text => date => `
+      const PostView = text => date => method =>`
         <li>
           <div>
             <b>${text}</b>
           </div>
           <div>
-            <i>${(new Date(+date)).toLocaleString()}</i>
+            <i>${(new Date(+date)).toLocaleString()}</i> -- <u>${method}</u>
           </div>
         </li>
       `;
 
       const renderPostsList = ({ data: { posts, addPost } }) => {
-        const List = (posts || addPost).map(({ text, date }) => PostView(text)(date)).join('');
+        const List = (posts || addPost)
+          .map(({ text, date, method }) => PostView(text)(date)(method)).join('');
         document.querySelector('#posts-container').innerHTML = List;
       }
 
       const addPost = e => {
         e.preventDefault();
         const text = e.target.text.value;
+        const method = e.target.method.value;
         fetch('/post', {
         	headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
         	method: 'post',
-        	body: JSON.stringify({ text }),
+        	body: JSON.stringify({ text, method }),
         })
           .then(res => res.json())
           .then(renderPostsList);
+
+        e.target.text.value = '';
       }
 
       const getPosts = () => {

@@ -18,8 +18,11 @@ export default {
   async resolve(root, params, options) {
     const db = await MongoClient.connect(process.env.MONGO_URL);
     const dbInstance = db.db(process.env.DB_NAME);
-    const result = await dbInstance.collection('posts')
-      .insert({ text: params.data.text, date: Date.now() });
+    const result = await dbInstance.collection('posts').insert({
+      text: params.data.text,
+      date: Date.now(),
+      method: params.data.method,
+    });
 
     console.log('INSERTED -->',result, result.insertedIds[0]);
 
