@@ -1,10 +1,14 @@
 import express from 'express';
+import cors from 'cors';
 import graphqlHTTP from 'express-graphql';
 import bodyParser from 'body-parser';
 import schema from './graphql';
 import mongo from './mongo'; // FIXME
 
 const app = express();
+
+// CORS
+app.use(cors());
 
 // Static server
 app.use(express.static('public'));
@@ -21,6 +25,7 @@ app.use('/graphql', graphqlHTTP(req => ({
   pretty: true,
   graphiql: true,
 })));
+
 
 // REST routes
 app.get('/test', (req, res) => {
