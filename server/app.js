@@ -4,6 +4,7 @@ import graphqlHTTP from 'express-graphql';
 import bodyParser from 'body-parser';
 import schema from './graphql';
 import mongo from './mongo'; // FIXME
+import { ObjectID } from 'mongodb'
 
 const app = express();
 
@@ -61,6 +62,22 @@ app.post('/post', (req, res) => {
       });
     });
   });
+});
+
+app.delete('/post/:_id', (req, res) => {
+  console.log(req.params);
+  mongo(db => {
+    db.collection("posts")
+      .deleteOne({ _id: new ObjectID(req.params._id) })
+      .then(data => {
+        console.log(data);
+        res.json({ data });
+      })
+      .catch(err => {
+        console.log(err)
+      });
+
+  })
 });
 
 // Starting server

@@ -17,20 +17,22 @@
     </form>
 
     <script>
-      const PostView = text => date => method =>`
+      const PostView = ({ text, date, method, _id }) => `
         <li>
           <div>
             <b>${text}</b>
           </div>
           <div>
-            <i>${(new Date(+date)).toLocaleString()}</i> -- <u>${method}</u>
+            <i>${(new Date(+date)).toLocaleString()}</i>
+            --
+            <u>${method}</u>
+            <button onclick="delPost('${_id}')">X</button>
           </div>
         </li>
       `;
 
       const renderPostsList = ({ data: { posts, addPost } }) => {
-        const List = (posts || addPost)
-          .map(({ text, date, method }) => PostView(text)(date)(method)).join('');
+        const List = (posts || addPost).map(PostView).join('');
         document.querySelector('#posts-container').innerHTML = List;
       }
 
@@ -39,17 +41,25 @@
         const text = e.target.text.value;
         const method = e.target.method.value;
         fetch('/post', {
-        	headers: {
+          headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-        	method: 'post',
-        	body: JSON.stringify({ text, method }),
+          method: 'post',
+          body: JSON.stringify({ text, method }),
         })
           .then(res => res.json())
           .then(renderPostsList);
 
         e.target.text.value = '';
+      }
+
+      const delPost = _id => {
+        if (!confirm("Delete this one?")) return;
+
+        fetch(`/post/${_id}`, { method: 'delete' })
+          .then(res => res.json())
+          .then(getPosts);
       }
 
       const getPosts = () => {
