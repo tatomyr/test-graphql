@@ -17,34 +17,47 @@
     </form>
 
     <script>
-      const PostView = text => date => method =>`
+      const PostView = ({ text, date, method, _id }) => `
         <li>
           <div>
             <b>${text}</b>
           </div>
           <div>
-            <i>${(new Date(+date)).toLocaleString()}</i> -- <u>${method}</u>
+            <i>${(new Date(+date)).toLocaleString()}</i>
+            --
+            <u>${method}</u>
+            <button onclick="delPost('${_id}')">X</button>
           </div>
         </li>
       `;
 
-      const renderPostsList = ({ data: { posts, addPost } }) => {
-        const List = (posts || addPost)
-          .map(({ text, date, method }) => PostView(text)(date)(method)).join('');
+      const renderPostsList = ({ data: { posts, addPost, delPost } }) => {
+        const List = (posts || addPost || delPost).map(PostView).join('');
         document.querySelector('#posts-container').innerHTML = List;
+      }
+
+      const requestGQL = query => (callback = renderPostsList) => fetch('/graphql', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: 'post',
+        body: JSON.stringify({ query }),
+      })
+        .then(res => res.json())
+        .then(callback);
+
+      const getPosts = () => {
+        requestGQL('{ posts { date, text, method, _id } }')();
       }
 
       const addPost = e => {
         e.preventDefault();
+
         const text = e.target.text.value;
         const method = e.target.method.value;
-        fetch('/graphql', {
-        	headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-        	method: 'post',
-        	body: JSON.stringify({ query: `mutation {
+        requestGQL(`
+          mutation {
             addPost(data: {
                text: "${text}",
                method: "${method}"
@@ -52,26 +65,25 @@
               text
               date
               method
+              _id
             }
-          }` }),
-        })
-          .then(res => res.json())
-          .then(renderPostsList);
-
-        e.target.text.value = '';
+          }
+        `)();
       }
 
-      const getPosts = () => {
-        fetch('/graphql', {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-        	method: 'post',
-        	body: JSON.stringify({ query: '{ posts { date, text, method } }' }),
-        })
-          .then(res => res.json())
-          .then(renderPostsList);
+      const delPost = _id => {
+        requestGQL(`
+          mutation {
+            delPost(data: {
+              _id: "${_id}",
+            }) {
+              text
+              date
+              method
+              _id
+            }
+          }
+        `)();
       }
 
       (() => {

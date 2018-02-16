@@ -38,6 +38,7 @@
 
       const addPost = e => {
         e.preventDefault();
+
         const text = e.target.text.value;
         const method = e.target.method.value;
         fetch('/post', {
